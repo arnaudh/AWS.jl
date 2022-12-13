@@ -902,7 +902,8 @@ end
     describe_malware_scans(detector_id)
     describe_malware_scans(detector_id, params::Dict{String,<:Any})
 
-Returns a list of malware scans.
+Returns a list of malware scans. Each member account can view the malware scans for their
+own accounts. An administrator can view the malware scans for all the member accounts.
 
 # Arguments
 - `detector_id`: The unique ID of the detector that the request is associated with.
@@ -1127,8 +1128,8 @@ end
     disassociate_members(account_ids, detector_id)
     disassociate_members(account_ids, detector_id, params::Dict{String,<:Any})
 
-Disassociates GuardDuty member accounts (to the current GuardDuty administrator account)
-specified by the account IDs.
+Disassociates GuardDuty member accounts (to the current administrator account) specified by
+the account IDs.
 
 # Arguments
 - `account_ids`: A list of account IDs of the GuardDuty member accounts that you want to
@@ -2029,7 +2030,9 @@ Optional parameters can be passed as a `params::Dict{String,<:Any}`. Valid keys 
   action, fill nextToken in the request with the value of NextToken from the previous
   response to continue listing data.
 - `"onlyAssociated"`: Specifies whether to only return associated members or to return all
-  members (including members who haven't been invited yet or have been disassociated).
+  members (including members who haven't been invited yet or have been disassociated). Member
+  accounts must have been previously associated with the GuardDuty administrator account
+  using  Create Members .
 """
 function list_members(detectorId; aws_config::AbstractAWSConfig=global_aws_config())
     return guardduty(
@@ -2584,7 +2587,8 @@ Updates the malware scan settings.
 
 # Optional Parameters
 Optional parameters can be passed as a `params::Dict{String,<:Any}`. Valid keys are:
-- `"ebsSnapshotPreservation"`: An enum value representing possible snapshot preservations.
+- `"ebsSnapshotPreservation"`: An enum value representing possible snapshot preservation
+  settings.
 - `"scanResourceCriteria"`: Represents the criteria to be used in the filter for selecting
   resources to scan.
 """

@@ -51,6 +51,64 @@ function associate_alias2020_05_31(
 end
 
 """
+    copy_distribution2020_05_31(caller_reference, primary_distribution_id)
+    copy_distribution2020_05_31(caller_reference, primary_distribution_id, params::Dict{String,<:Any})
+
+Creates a staging distribution using the configuration of the provided primary
+distribution. A staging distribution is a copy of an existing distribution (called the
+primary distribution) that you can use in a continuous deployment workflow. After you
+create a staging distribution, you can use UpdateDistribution to modify the staging
+distribution’s configuration. Then you can use CreateContinuousDeploymentPolicy to
+incrementally move traffic to the staging distribution.
+
+# Arguments
+- `caller_reference`: A value that uniquely identifies a request to create a resource. This
+  helps to prevent CloudFront from creating a duplicate resource if you accidentally resubmit
+  an identical request.
+- `primary_distribution_id`: The identifier of the primary distribution whose configuration
+  you are copying. To get a distribution ID, use ListDistributions.
+
+# Optional Parameters
+Optional parameters can be passed as a `params::Dict{String,<:Any}`. Valid keys are:
+- `"If-Match"`: The version identifier of the primary distribution whose configuration you
+  are copying. This is the ETag value returned in the response to GetDistribution and
+  GetDistributionConfig.
+- `"Staging"`: The type of distribution that your primary distribution will be copied to.
+  The only valid value is True, indicating that you are copying to a staging distribution.
+"""
+function copy_distribution2020_05_31(
+    CallerReference,
+    PrimaryDistributionId;
+    aws_config::AbstractAWSConfig=global_aws_config(),
+)
+    return cloudfront(
+        "POST",
+        "/2020-05-31/distribution/$(PrimaryDistributionId)/copy",
+        Dict{String,Any}("CallerReference" => CallerReference);
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+function copy_distribution2020_05_31(
+    CallerReference,
+    PrimaryDistributionId,
+    params::AbstractDict{String};
+    aws_config::AbstractAWSConfig=global_aws_config(),
+)
+    return cloudfront(
+        "POST",
+        "/2020-05-31/distribution/$(PrimaryDistributionId)/copy",
+        Dict{String,Any}(
+            mergewith(
+                _merge, Dict{String,Any}("CallerReference" => CallerReference), params
+            ),
+        );
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+
+"""
     create_cache_policy2020_05_31(cache_policy_config)
     create_cache_policy2020_05_31(cache_policy_config, params::Dict{String,<:Any})
 
@@ -152,18 +210,63 @@ function create_cloud_front_origin_access_identity2020_05_31(
 end
 
 """
+    create_continuous_deployment_policy2020_05_31(continuous_deployment_policy_config)
+    create_continuous_deployment_policy2020_05_31(continuous_deployment_policy_config, params::Dict{String,<:Any})
+
+Creates a continuous deployment policy that distributes traffic for a custom domain name to
+two different CloudFront distributions. To use a continuous deployment policy, first use
+CopyDistribution to create a staging distribution, then use UpdateDistribution to modify
+the staging distribution’s configuration. After you create and update a staging
+distribution, you can use a continuous deployment policy to incrementally move traffic to
+the staging distribution. This workflow enables you to test changes to a distribution’s
+configuration before moving all of your domain’s production traffic to the new
+configuration.
+
+# Arguments
+- `continuous_deployment_policy_config`: Contains the configuration for a continuous
+  deployment policy.
+
+"""
+function create_continuous_deployment_policy2020_05_31(
+    ContinuousDeploymentPolicyConfig; aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cloudfront(
+        "POST",
+        "/2020-05-31/continuous-deployment-policy",
+        Dict{String,Any}(
+            "ContinuousDeploymentPolicyConfig" => ContinuousDeploymentPolicyConfig
+        );
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+function create_continuous_deployment_policy2020_05_31(
+    ContinuousDeploymentPolicyConfig,
+    params::AbstractDict{String};
+    aws_config::AbstractAWSConfig=global_aws_config(),
+)
+    return cloudfront(
+        "POST",
+        "/2020-05-31/continuous-deployment-policy",
+        Dict{String,Any}(
+            mergewith(
+                _merge,
+                Dict{String,Any}(
+                    "ContinuousDeploymentPolicyConfig" => ContinuousDeploymentPolicyConfig
+                ),
+                params,
+            ),
+        );
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+
+"""
     create_distribution2020_05_31(distribution_config)
     create_distribution2020_05_31(distribution_config, params::Dict{String,<:Any})
 
-Creates a new web distribution. You create a CloudFront distribution to tell CloudFront
-where you want content to be delivered from, and the details about how to track and manage
-content delivery. Send a POST request to the /CloudFront API
-version/distribution/distribution ID resource.  When you update a distribution, there are
-more required fields than when you create a distribution. When you update your distribution
-by using UpdateDistribution, follow the steps included in the documentation to get the
-current configuration and then make your updates. This helps to make sure that you include
-all of the required fields. To view a summary, see Required Fields for Create Distribution
-and Update Distribution in the Amazon CloudFront Developer Guide.
+Creates a CloudFront distribution.
 
 # Arguments
 - `distribution_config`: The distribution's configuration information.
@@ -961,6 +1064,44 @@ function delete_cloud_front_origin_access_identity2020_05_31(
 end
 
 """
+    delete_continuous_deployment_policy2020_05_31(id)
+    delete_continuous_deployment_policy2020_05_31(id, params::Dict{String,<:Any})
+
+Deletes a continuous deployment policy. You cannot delete a continuous deployment policy
+that’s attached to a primary distribution. First update your distribution to remove the
+continuous deployment policy, then you can delete the policy.
+
+# Arguments
+- `id`: The identifier of the continuous deployment policy that you are deleting.
+
+# Optional Parameters
+Optional parameters can be passed as a `params::Dict{String,<:Any}`. Valid keys are:
+- `"If-Match"`: The current version (ETag value) of the continuous deployment policy that
+  you are deleting.
+"""
+function delete_continuous_deployment_policy2020_05_31(
+    Id; aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cloudfront(
+        "DELETE",
+        "/2020-05-31/continuous-deployment-policy/$(Id)";
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+function delete_continuous_deployment_policy2020_05_31(
+    Id, params::AbstractDict{String}; aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cloudfront(
+        "DELETE",
+        "/2020-05-31/continuous-deployment-policy/$(Id)",
+        params;
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+
+"""
     delete_distribution2020_05_31(id)
     delete_distribution2020_05_31(id, params::Dict{String,<:Any})
 
@@ -1611,6 +1752,72 @@ function get_cloud_front_origin_access_identity_config2020_05_31(
     return cloudfront(
         "GET",
         "/2020-05-31/origin-access-identity/cloudfront/$(Id)/config",
+        params;
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+
+"""
+    get_continuous_deployment_policy2020_05_31(id)
+    get_continuous_deployment_policy2020_05_31(id, params::Dict{String,<:Any})
+
+Gets a continuous deployment policy, including metadata (the policy’s identifier and the
+date and time when the policy was last modified).
+
+# Arguments
+- `id`: The identifier of the continuous deployment policy that you are getting.
+
+"""
+function get_continuous_deployment_policy2020_05_31(
+    Id; aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cloudfront(
+        "GET",
+        "/2020-05-31/continuous-deployment-policy/$(Id)";
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+function get_continuous_deployment_policy2020_05_31(
+    Id, params::AbstractDict{String}; aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cloudfront(
+        "GET",
+        "/2020-05-31/continuous-deployment-policy/$(Id)",
+        params;
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+
+"""
+    get_continuous_deployment_policy_config2020_05_31(id)
+    get_continuous_deployment_policy_config2020_05_31(id, params::Dict{String,<:Any})
+
+Gets configuration information about a continuous deployment policy.
+
+# Arguments
+- `id`: The identifier of the continuous deployment policy whose configuration you are
+  getting.
+
+"""
+function get_continuous_deployment_policy_config2020_05_31(
+    Id; aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cloudfront(
+        "GET",
+        "/2020-05-31/continuous-deployment-policy/$(Id)/config";
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+function get_continuous_deployment_policy_config2020_05_31(
+    Id, params::AbstractDict{String}; aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cloudfront(
+        "GET",
+        "/2020-05-31/continuous-deployment-policy/$(Id)/config",
         params;
         aws_config=aws_config,
         feature_set=SERVICE_FEATURE_SET,
@@ -2518,6 +2725,48 @@ function list_conflicting_aliases2020_05_31(
                 params,
             ),
         );
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+
+"""
+    list_continuous_deployment_policies2020_05_31()
+    list_continuous_deployment_policies2020_05_31(params::Dict{String,<:Any})
+
+Gets a list of the continuous deployment policies in your Amazon Web Services account. You
+can optionally specify the maximum number of items to receive in the response. If the total
+number of items in the list exceeds the maximum that you specify, or the default maximum,
+the response is paginated. To get the next page of items, send a subsequent request that
+specifies the NextMarker value from the current response as the Marker value in the
+subsequent request.
+
+# Optional Parameters
+Optional parameters can be passed as a `params::Dict{String,<:Any}`. Valid keys are:
+- `"Marker"`: Use this field when paginating results to indicate where to begin in your
+  list of continuous deployment policies. The response includes policies in the list that
+  occur after the marker. To get the next page of the list, set this field’s value to the
+  value of NextMarker from the current page’s response.
+- `"MaxItems"`: The maximum number of continuous deployment policies that you want returned
+  in the response.
+"""
+function list_continuous_deployment_policies2020_05_31(;
+    aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cloudfront(
+        "GET",
+        "/2020-05-31/continuous-deployment-policy";
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+function list_continuous_deployment_policies2020_05_31(
+    params::AbstractDict{String}; aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cloudfront(
+        "GET",
+        "/2020-05-31/continuous-deployment-policy",
+        params;
         aws_config=aws_config,
         feature_set=SERVICE_FEATURE_SET,
     )
@@ -3622,42 +3871,82 @@ function update_cloud_front_origin_access_identity2020_05_31(
 end
 
 """
+    update_continuous_deployment_policy2020_05_31(continuous_deployment_policy_config, id)
+    update_continuous_deployment_policy2020_05_31(continuous_deployment_policy_config, id, params::Dict{String,<:Any})
+
+Updates a continuous deployment policy. You can update a continuous deployment policy to
+enable or disable it, to change the percentage of traffic that it sends to the staging
+distribution, or to change the staging distribution that it sends traffic to. When you
+update a continuous deployment policy configuration, all the fields are updated with the
+values that are provided in the request. You cannot update some fields independent of
+others. To update a continuous deployment policy configuration:   Use
+GetContinuousDeploymentPolicyConfig to get the current configuration.   Locally modify the
+fields in the continuous deployment policy configuration that you want to update.   Use
+UpdateContinuousDeploymentPolicy, providing the entire continuous deployment policy
+configuration, including the fields that you modified and those that you didn’t.
+
+# Arguments
+- `continuous_deployment_policy_config`: The continuous deployment policy configuration.
+- `id`: The identifier of the continuous deployment policy that you are updating.
+
+# Optional Parameters
+Optional parameters can be passed as a `params::Dict{String,<:Any}`. Valid keys are:
+- `"If-Match"`: The current version (ETag value) of the continuous deployment policy that
+  you are updating.
+"""
+function update_continuous_deployment_policy2020_05_31(
+    ContinuousDeploymentPolicyConfig, Id; aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cloudfront(
+        "PUT",
+        "/2020-05-31/continuous-deployment-policy/$(Id)",
+        Dict{String,Any}(
+            "ContinuousDeploymentPolicyConfig" => ContinuousDeploymentPolicyConfig
+        );
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+function update_continuous_deployment_policy2020_05_31(
+    ContinuousDeploymentPolicyConfig,
+    Id,
+    params::AbstractDict{String};
+    aws_config::AbstractAWSConfig=global_aws_config(),
+)
+    return cloudfront(
+        "PUT",
+        "/2020-05-31/continuous-deployment-policy/$(Id)",
+        Dict{String,Any}(
+            mergewith(
+                _merge,
+                Dict{String,Any}(
+                    "ContinuousDeploymentPolicyConfig" => ContinuousDeploymentPolicyConfig
+                ),
+                params,
+            ),
+        );
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+
+"""
     update_distribution2020_05_31(distribution_config, id)
     update_distribution2020_05_31(distribution_config, id, params::Dict{String,<:Any})
 
-Updates the configuration for a web distribution.   When you update a distribution, there
-are more required fields than when you create a distribution. When you update your
-distribution by using this API action, follow the steps here to get the current
-configuration and then make your updates, to make sure that you include all of the required
-fields. To view a summary, see Required Fields for Create Distribution and Update
-Distribution in the Amazon CloudFront Developer Guide.  The update process includes getting
-the current distribution configuration, updating the XML document that is returned to make
-your changes, and then submitting an UpdateDistribution request to make the updates. For
-information about updating a distribution using the CloudFront console instead, see
-Creating a Distribution in the Amazon CloudFront Developer Guide.  To update a web
-distribution using the CloudFront API    Submit a GetDistributionConfig request to get the
-current configuration and an Etag header for the distribution.  If you update the
-distribution again, you must get a new Etag header.    Update the XML document that was
-returned in the response to your GetDistributionConfig request to include your changes.
-When you edit the XML file, be aware of the following:   You must strip out the ETag
-parameter that is returned.   Additional fields are required when you update a
-distribution. There may be fields included in the XML file for features that you haven't
-configured for your distribution. This is expected and required to successfully update the
-distribution.   You can't change the value of CallerReference. If you try to change this
-value, CloudFront returns an IllegalUpdate error.    The new configuration replaces the
-existing configuration; the values that you specify in an UpdateDistribution request are
-not merged into your existing configuration. When you add, delete, or replace values in an
-element that allows multiple values (for example, CNAME), you must specify all of the
-values that you want to appear in the updated distribution. In addition, you must update
-the corresponding Quantity element.      Submit an UpdateDistribution request to update the
-configuration for your distribution:   In the request body, include the XML document that
-you updated in Step 2. The request body must include an XML document with a
-DistributionConfig element.   Set the value of the HTTP If-Match header to the value of the
-ETag header that CloudFront returned when you submitted the GetDistributionConfig request
-in Step 1.     Review the response to the UpdateDistribution request to confirm that the
-configuration was successfully updated.   Optional: Submit a GetDistribution request to
-confirm that your changes have propagated. When propagation is complete, the value of
-Status is Deployed.
+Updates the configuration for a CloudFront distribution. The update process includes
+getting the current distribution configuration, updating it to make your changes, and then
+submitting an UpdateDistribution request to make the updates.  To update a web distribution
+using the CloudFront API    Use GetDistributionConfig to get the current configuration,
+including the version identifier (ETag).   Update the distribution configuration that was
+returned in the response. Note the following important requirements and restrictions:   You
+must rename the ETag field to IfMatch, leaving the value unchanged. (Set the value of
+IfMatch to the value of ETag, then remove the ETag field.)   You can’t change the value
+of CallerReference.     Submit an UpdateDistribution request, providing the distribution
+configuration. The new configuration replaces the existing configuration. The values that
+you specify in an UpdateDistribution request are not merged into your existing
+configuration. Make sure to include all fields: the ones that you modified and also the
+ones that you didn’t.
 
 # Arguments
 - `distribution_config`: The distribution's configuration information.
@@ -3693,6 +3982,55 @@ function update_distribution2020_05_31(
                 _merge, Dict{String,Any}("DistributionConfig" => DistributionConfig), params
             ),
         );
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+
+"""
+    update_distribution_with_staging_config2020_05_31(id)
+    update_distribution_with_staging_config2020_05_31(id, params::Dict{String,<:Any})
+
+Copies the staging distribution's configuration to its corresponding primary distribution.
+The primary distribution retains its Aliases (also known as alternate domain names or
+CNAMEs) and ContinuousDeploymentPolicyId value, but otherwise its configuration is
+overwritten to match the staging distribution. You can use this operation in a continuous
+deployment workflow after you have tested configuration changes on the staging
+distribution. After using a continuous deployment policy to move a portion of your domain
+name’s traffic to the staging distribution and verifying that it works as intended, you
+can use this operation to copy the staging distribution’s configuration to the primary
+distribution. This action will disable the continuous deployment policy and move your
+domain’s traffic back to the primary distribution.
+
+# Arguments
+- `id`: The identifier of the primary distribution to which you are copying a staging
+  distribution's configuration.
+
+# Optional Parameters
+Optional parameters can be passed as a `params::Dict{String,<:Any}`. Valid keys are:
+- `"If-Match"`: The current versions (ETag values) of both primary and staging
+  distributions. Provide these in the following format:  &lt;primary ETag&gt;, &lt;staging
+  ETag&gt;
+- `"StagingDistributionId"`: The identifier of the staging distribution whose configuration
+  you are copying to the primary distribution.
+"""
+function update_distribution_with_staging_config2020_05_31(
+    Id; aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cloudfront(
+        "PUT",
+        "/2020-05-31/distribution/$(Id)/promote-staging-config";
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+function update_distribution_with_staging_config2020_05_31(
+    Id, params::AbstractDict{String}; aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cloudfront(
+        "PUT",
+        "/2020-05-31/distribution/$(Id)/promote-staging-config",
+        params;
         aws_config=aws_config,
         feature_set=SERVICE_FEATURE_SET,
     )

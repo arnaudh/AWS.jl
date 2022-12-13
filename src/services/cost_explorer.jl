@@ -1180,7 +1180,9 @@ end
     get_savings_plans_purchase_recommendation(lookback_period_in_days, payment_option, savings_plans_type, term_in_years)
     get_savings_plans_purchase_recommendation(lookback_period_in_days, payment_option, savings_plans_type, term_in_years, params::Dict{String,<:Any})
 
-Retrieves your request parameters, Savings Plan Recommendations Summary and Details.
+Retrieves the Savings Plans recommendations for your account. First use
+StartSavingsPlansPurchaseRecommendationGeneration to generate a new set of recommendations,
+and then use GetSavingsPlansPurchaseRecommendation to retrieve them.
 
 # Arguments
 - `lookback_period_in_days`: The lookback period that's used to generate the recommendation.
@@ -1572,6 +1574,40 @@ function list_cost_category_definitions(
 end
 
 """
+    list_savings_plans_purchase_recommendation_generation()
+    list_savings_plans_purchase_recommendation_generation(params::Dict{String,<:Any})
+
+Retrieves a list of your historical recommendation generations within the past 30 days.
+
+# Optional Parameters
+Optional parameters can be passed as a `params::Dict{String,<:Any}`. Valid keys are:
+- `"GenerationStatus"`: The status of the recommendation generation.
+- `"NextPageToken"`: The token to retrieve the next set of results.
+- `"PageSize"`: The number of recommendations that you want returned in a single response
+  object.
+- `"RecommendationIds"`: The IDs for each specific recommendation.
+"""
+function list_savings_plans_purchase_recommendation_generation(;
+    aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cost_explorer(
+        "ListSavingsPlansPurchaseRecommendationGeneration";
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+function list_savings_plans_purchase_recommendation_generation(
+    params::AbstractDict{String}; aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cost_explorer(
+        "ListSavingsPlansPurchaseRecommendationGeneration",
+        params;
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+
+"""
     list_tags_for_resource(resource_arn)
     list_tags_for_resource(resource_arn, params::Dict{String,<:Any})
 
@@ -1645,6 +1681,38 @@ function provide_anomaly_feedback(
                 params,
             ),
         );
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+
+"""
+    start_savings_plans_purchase_recommendation_generation()
+    start_savings_plans_purchase_recommendation_generation(params::Dict{String,<:Any})
+
+Requests a Savings Plans recommendation generation. This enables you to calculate a fresh
+set of Savings Plans recommendations that takes your latest usage data and current Savings
+Plans inventory into account. You can refresh Savings Plans recommendations up to three
+times daily for a consolidated billing family.
+StartSavingsPlansPurchaseRecommendationGeneration has no request syntax because no input
+parameters are needed to support this operation.
+
+"""
+function start_savings_plans_purchase_recommendation_generation(;
+    aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cost_explorer(
+        "StartSavingsPlansPurchaseRecommendationGeneration";
+        aws_config=aws_config,
+        feature_set=SERVICE_FEATURE_SET,
+    )
+end
+function start_savings_plans_purchase_recommendation_generation(
+    params::AbstractDict{String}; aws_config::AbstractAWSConfig=global_aws_config()
+)
+    return cost_explorer(
+        "StartSavingsPlansPurchaseRecommendationGeneration",
+        params;
         aws_config=aws_config,
         feature_set=SERVICE_FEATURE_SET,
     )

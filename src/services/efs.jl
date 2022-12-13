@@ -14,8 +14,12 @@ file system request made through the access point. The operating system user and
 override any identity information provided by the NFS client. The file system path is
 exposed as the access point's root directory. Applications using the access point can only
 access data in the application's own directory and any subdirectories. To learn more, see
-Mounting a file system using EFS access points. This operation requires permissions for the
-elasticfilesystem:CreateAccessPoint action.
+Mounting a file system using EFS access points.  If multiple requests to create access
+points on the same file system are sent in quick succession, and the file system is near
+the limit of 120 access points, you may experience a throttling response for these
+requests. This is to ensure that the file system does not exceed the stated access point
+limit.  This operation requires permissions for the elasticfilesystem:CreateAccessPoint
+action.
 
 # Arguments
 - `client_token`: A string of up to 64 ASCII characters that Amazon EFS uses to ensure
@@ -159,13 +163,12 @@ Optional parameters can be passed as a `params::Dict{String,<:Any}`. Valid keys 
   \"Key\":\"Name\",\"Value\":\"{value}\" key-value pair. Each key must be unique. For more
   information, see Tagging Amazon Web Services resources in the Amazon Web Services General
   Reference Guide.
-- `"ThroughputMode"`: Specifies the throughput mode for the file system, either bursting or
-  provisioned. If you set ThroughputMode to provisioned, you must also set a value for
-  ProvisionedThroughputInMibps. After you create the file system, you can decrease your file
-  system's throughput in Provisioned Throughput mode or change between the throughput modes,
-  as long as it’s been more than 24 hours since the last decrease or throughput mode
-  change. For more information, see Specifying throughput with provisioned mode in the Amazon
-  EFS User Guide.  Default is bursting.
+- `"ThroughputMode"`: Specifies the throughput mode for the file system. The mode can be
+  bursting, provisioned, or elastic. If you set ThroughputMode to provisioned, you must also
+  set a value for ProvisionedThroughputInMibps. After you create the file system, you can
+  decrease your file system's throughput in Provisioned Throughput mode or change between the
+  throughput modes, with certain time restrictions. For more information, see Specifying
+  throughput with provisioned mode in the Amazon EFS User Guide.  Default is bursting.
 """
 function create_file_system(
     CreationToken; aws_config::AbstractAWSConfig=global_aws_config()
